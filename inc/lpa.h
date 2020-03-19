@@ -20,6 +20,7 @@ int lpa_init(/*node_t *map,*/ int x_MAX, int y_MAX);
 int lpa_compute_path(/*node_t *map,*/ PQ_list_t *queue, list_t *path, int goalX, int goalY);
 void lpa_get_current_coords(char *data);
 void lpa_free(PQ_list_t *queue, list_t *path);
+int lpa_is_obstacle(int x, int y);
 
 void print_map(node_t *map, node_t *current_node, node_t *goal_node);
 // void make_obstacles(void);

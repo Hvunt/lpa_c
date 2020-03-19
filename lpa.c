@@ -129,6 +129,15 @@ void lpa_free(PQ_list_t *queue, list_t *path)
     list_free(&path);
 }
 
+int lpa_is_obstacle(int x, int y){
+    node_t *node = get_node_coord(map, x, y);
+    
+    if (node->isObstacle)
+        return 1;
+    else 
+        return 0;    
+}
+
 static void update_node(node_t *map, PQ_list_t **queue, node_t *current_node, node_t *node, node_t *goal_node)
 {
     if (node != current_node)
