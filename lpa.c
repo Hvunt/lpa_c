@@ -10,7 +10,6 @@ static int x_current = 0, y_current = 0;
 static int x_MAX, y_MAX;
 
 static PQ_list_t *queue = NULL;
-// static list_t *current_path = NULL;
 static path_t path;
 
 static void get_predecessors(node_t *map, list_t **pred_list, node_t *current_node);
@@ -24,7 +23,6 @@ static node_t *get_node_coord(node_t *map, int x, int y);
 static float get_cost(node_t *from, node_t *to);
 static void calc_key(float *key, node_t *current_node, node_t *goal_node);
 
-// static void print_map(node_t *map, node_t *current_node, node_t *goal_node);
 static void print_map(node_t *map, int x_goal, int y_goal);
 
 #ifdef LPA_MAKE_OBSTACLES
@@ -52,6 +50,7 @@ void lpa_deinit(void)
     free(map);
 }
 
+// params is goal coordinates
 int lpa_compute_path(int goalX, int goalY)
 {
     node_t *current_node = get_node_coord(map, x_current, y_current);
@@ -129,11 +128,13 @@ void lpa_get_current_coords(char *data)
     sprintf(data, "%d:%d", x_current, y_current);
 }
 
+// print the whole map
 void lpa_show_map(int x_goal, int y_goal)
 {
     print_map(map, x_goal, y_goal);
 }
 
+// get next node in the path
 node_t lpa_pop_node(void)
 {
     node_t node = list_pop(&path.current_path);

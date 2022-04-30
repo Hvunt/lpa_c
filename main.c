@@ -13,7 +13,7 @@ int main(int argc, char const *argv[]){
     int X = 0, Y = 0;
     path_t *path;
 
-    printf("LPA init code: %i\n", lpa_init(20, 20));
+    printf("LPA init code: %i\n", lpa_init(500, 500));
     while (1){
         printf("Enter goal X coordinate\n");
         scanf("%d", &X);
