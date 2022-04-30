@@ -114,7 +114,7 @@ int lpa_compute_path(int goalX, int goalY)
 
         calc_key(goal_key, goal_node, goal_node);
     }
-    // print_map(map, goal_node->x, goal_node->y);
+
     path.current_path = make_path(map, current_node, goal_node);
     path.length = list_get_length(path.current_path);
     
@@ -134,9 +134,16 @@ void lpa_show_map(int x_goal, int y_goal)
     print_map(map, x_goal, y_goal);
 }
 
-path_t lpa_get_path(void)
+node_t lpa_pop_node(void)
 {
-    return path;
+    node_t node = list_pop(&path.current_path);
+    path.length -= 1;
+    return node;
+}
+
+path_t * lpa_get_path(void)
+{
+    return &path;
 }
 
 int lpa_get_path_length(void){
@@ -231,17 +238,14 @@ static list_t * make_path(node_t *map, node_t *current_node, node_t *goal)
     list_t *path = NULL;
     node_t *node = get_min_pred(map, goal);
     node_t *prev_node = goal;
-
-    if (node == current_node){ // We are in a one point to a finish
-        list_add(&path, prev_node);
-    } else {
-        while (node != current_node)
-        {
-            list_add(&path, node);
-            node->isPath = true;
-            prev_node = node;
-            node = get_min_pred(map, prev_node);
-        }
+    
+    list_add(&path, prev_node);
+    while (node != current_node)
+    {
+        list_add(&path, node);
+        node->isPath = true;
+        prev_node = node;
+        node = get_min_pred(map, prev_node);
     }
     return path;
 }

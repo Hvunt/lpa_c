@@ -24,11 +24,11 @@ typedef struct path
 
 
 int lpa_init(int x_MAX, int y_MAX);
-// int lpa_compute_path(PQ_list_t *queue, list_t *path, int goalX, int goalY);
 int lpa_compute_path(int goalX, int goalY);
-path_t lpa_get_path(void);
+path_t * lpa_get_path(void);
 int lpa_get_path_length(void);
 void lpa_get_current_coords(char *data);
+node_t lpa_pop_node(void);
 void lpa_deinit(void);
 
 void lpa_show_map(int x_goal, int y_goal);
