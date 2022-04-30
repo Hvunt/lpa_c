@@ -16,17 +16,21 @@
 
 typedef struct l list_t;
 
-int lpa_init(/*node_t *map,*/ int x_MAX, int y_MAX);
-int lpa_compute_path(/*node_t *map,*/ PQ_list_t *queue, list_t *path, int goalX, int goalY);
+int lpa_init(int x_MAX, int y_MAX);
+// int lpa_compute_path(PQ_list_t *queue, list_t *path, int goalX, int goalY);
+int lpa_compute_path(int goalX, int goalY);
+list_t * lpa_get_path(void);
+int lpa_get_path_length(void);
 void lpa_get_current_coords(char *data);
-void lpa_free(PQ_list_t *queue, list_t *path);
+void lpa_deinit(void);
 
-void show_map();
+void lpa_show_map(int x_goal, int y_goal);
 
-enum{
+enum
+{
     LPA_INIT_OUT_OF_MEMORY = -20,
     LPA_INIT_POINT_ERROR = -10,
-    LPA_INIT_POINT_IS_OBSTACLE, // point is a obstacle or non exist
+    LPA_INIT_POINT_IS_OBSTACLE, // point is a obstacle or a non exist
     LPA_PATH_CANT_BE_FOUND = -1,
 
     LPA_OK = 1,

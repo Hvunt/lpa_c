@@ -9,12 +9,28 @@ void list_add(list_t **list, node_t *node)
     *list = new_node;
 }
 
-void list_pop(list_t **list){
-    if (*list != NULL){
+node_t list_pop(list_t **list)
+{
+    node_t node;
+    node.x = -1;
+    node.y = -1;
+    // if ((*list != NULL) && ((*list)->nodes != NULL))
+    if (*list != NULL)
+    {
+        node = *(*list)->nodes;
         list_t *temp = (*list)->next;
         free(*list);
+        // if (temp != NULL)
         *list = temp;
+
+        // list_t *temp = (*list)->next;
+        // if (temp != NULL)
+        //     node = *(temp->nodes);
+        // free(*list);
+        // *list = temp;
+        // *list = temp->next;
     }
+    return node;
 }
 
 int list_get_length(list_t *list)

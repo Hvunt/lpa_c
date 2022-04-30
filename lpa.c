@@ -4,25 +4,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// node_t map[50*50];
-
 node_t *map;
 static int x_current = 0, y_current = 0;
 
 static int x_MAX, y_MAX;
 
+static PQ_list_t *queue = NULL;
+static list_t *current_path = NULL;
+
 static void get_predecessors(node_t *map, list_t **pred_list, node_t *current_node);
 static void get_successors(node_t *map, list_t **suc_list, node_t *current_node);
 static node_t *get_min_pred(node_t *map, node_t *current_node);
 static void update_node(node_t *map, PQ_list_t **queue, node_t *current_node, node_t *node, node_t *goal_node);
-static void make_path(node_t *map, list_t *path, node_t *current_node, node_t *goal);
+static list_t * make_path(node_t *map, node_t *current_node, node_t *goal);
 
 static void map_init(node_t *map, int x_MAX, int y_MAX);
 static node_t *get_node_coord(node_t *map, int x, int y);
 static float get_cost(node_t *from, node_t *to);
 static void calc_key(float *key, node_t *current_node, node_t *goal_node);
 
-static void print_map(node_t *map, node_t *current_node, node_t *goal_node);
+// static void print_map(node_t *map, node_t *current_node, node_t *goal_node);
+static void print_map(node_t *map, int x_goal, int y_goal);
 
 #ifdef LPA_MAKE_OBSTACLES
 static void make_obstacles(void);
@@ -39,15 +41,17 @@ int lpa_init(int _x_MAX, int _y_MAX)
         return LPA_INIT_OUT_OF_MEMORY;
 
     map_init(map, x_MAX, y_MAX);
-
-    // current_node->isObstacle = false; //!!!!!!!!!!! ONLY FOR TEST!!!!!!!!!
-
-    // goal_node->isObstacle = false; //!!!!!!!!!!! ONLY FOR TEST!!!!!!!!!
-
     return LPA_OK;
 }
 
-int lpa_compute_path( PQ_list_t *queue, list_t *path, int goalX, int goalY)
+void lpa_deinit(void)
+{
+    x_current = 0;
+    y_current = 0;
+    free(map);
+}
+
+int lpa_compute_path(int goalX, int goalY)
 {
     node_t *current_node = get_node_coord(map, x_current, y_current);
 
@@ -109,12 +113,12 @@ int lpa_compute_path( PQ_list_t *queue, list_t *path, int goalX, int goalY)
 
         calc_key(goal_key, goal_node, goal_node);
     }
-    make_path(map, path, current_node, goal_node);
-    print_map(map, current_node, goal_node);
+    // print_map(map, goal_node->x, goal_node->y);
+    current_path = make_path(map, current_node, goal_node);
     
     x_current = goal_node->x;
     y_current = goal_node->y;
-    lpa_free(queue, path);
+    PQ_free(&queue);
     return LPA_OK;
 }
 
@@ -123,11 +127,20 @@ void lpa_get_current_coords(char *data)
     sprintf(data, "%d:%d", x_current, y_current);
 }
 
-void lpa_free(PQ_list_t *queue, list_t *path)
+void lpa_show_map(int x_goal, int y_goal)
 {
-    PQ_free(&queue);
-    list_free(&path);
+    print_map(map, x_goal, y_goal);
 }
+
+list_t * lpa_get_path(void)
+{
+    return current_path;
+}
+
+int lpa_get_path_length(void){
+    return list_get_length(current_path);
+}
+
 
 /////////////////////////////////////
 
@@ -170,7 +183,6 @@ static node_t *get_node_coord(node_t *map, int x, int y)
     return NULL;
 }
 
-//It is equivalent of get_successors
 static void get_predecessors(node_t *map, list_t **pred_list, node_t *from_node)
 {
     for (int x = -1; x <= 1; x++)
@@ -212,17 +224,23 @@ static node_t *get_min_pred(node_t *map, node_t *from_node)
     return min_node;
 }
 
-static void make_path(node_t *map, list_t *path, node_t *current_node, node_t *goal)
+static list_t * make_path(node_t *map, node_t *current_node, node_t *goal)
 {
     node_t *node = get_min_pred(map, goal);
     node_t *prev_node = goal;
-    while (node != current_node)
-    {
-        list_add(&path, node);
-        node->isPath = true;
-        prev_node = node;
-        node = get_min_pred(map, prev_node);
+
+    if (node == current_node){ // We are in a one point to a finish
+        list_add(&current_path, prev_node);
+    } else {
+        while (node != current_node)
+        {
+            list_add(&current_path, node);
+            node->isPath = true;
+            prev_node = node;
+            node = get_min_pred(map, prev_node);
+        }
     }
+    return current_path;
 }
 
 //UTILS
@@ -270,7 +288,7 @@ static void calc_key(float *key, node_t *from_node, node_t *goal_node)
     key[1] = fmin(from_node->rhs, from_node->g);
 }
 
-static void print_map(node_t *map, node_t *current_node, node_t *goal_node)
+void print_map(node_t *map, int x_goal, int y_goal)
 {
     printf("==========================>Y\n");
     printf("||");
@@ -278,9 +296,9 @@ static void print_map(node_t *map, node_t *current_node, node_t *goal_node)
     {
         if (map[i].isObstacle)
             printf("#");            //Print an obstacle
-        else if (map[i].x == goal_node->x && map[i].y == goal_node->y)
+        else if (map[i].x == x_goal && map[i].y == y_goal)
             printf("X");            //Print a goal point
-        else if (map[i].x == current_node->x && map[i].y == current_node->y)
+        else if (map[i].x == x_current && map[i].y == y_current)
             printf("S");            //Print a start point
         else if (map[i].isPath)
             printf("O");            //Print if point is in the path
@@ -294,6 +312,31 @@ static void print_map(node_t *map, node_t *current_node, node_t *goal_node)
     printf("X\n");
     printf("###########\n");
 }
+
+// static void print_map(node_t *map, node_t *current_node, node_t *goal_node)
+// {
+//     printf("==========================>Y\n");
+//     printf("||");
+//     for (int i = 0; i < x_MAX * y_MAX; i++)
+//     {
+//         if (map[i].isObstacle)
+//             printf("#");            //Print an obstacle
+//         else if (map[i].x == goal_node->x && map[i].y == goal_node->y)
+//             printf("X");            //Print a goal point
+//         else if (map[i].x == current_node->x && map[i].y == current_node->y)
+//             printf("S");            //Print a start point
+//         else if (map[i].isPath)
+//             printf("O");            //Print if point is in the path
+//         else
+//             printf(" ");
+
+//         if (map[i].y == y_MAX - 1)
+//             printf("\n||");
+//     }
+//     printf("\n\\/\n");
+//     printf("X\n");
+//     printf("###########\n");
+// }
 
 #ifdef LPA_MAKE_OBSTACLES
 
