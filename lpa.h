@@ -16,10 +16,17 @@
 
 typedef struct l list_t;
 
+typedef struct path
+{
+    list_t *current_path;
+    int length;
+} path_t;
+
+
 int lpa_init(int x_MAX, int y_MAX);
 // int lpa_compute_path(PQ_list_t *queue, list_t *path, int goalX, int goalY);
 int lpa_compute_path(int goalX, int goalY);
-list_t * lpa_get_path(void);
+path_t lpa_get_path(void);
 int lpa_get_path_length(void);
 void lpa_get_current_coords(char *data);
 void lpa_deinit(void);

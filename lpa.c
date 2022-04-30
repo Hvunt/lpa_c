@@ -10,7 +10,8 @@ static int x_current = 0, y_current = 0;
 static int x_MAX, y_MAX;
 
 static PQ_list_t *queue = NULL;
-static list_t *current_path = NULL;
+// static list_t *current_path = NULL;
+static path_t path;
 
 static void get_predecessors(node_t *map, list_t **pred_list, node_t *current_node);
 static void get_successors(node_t *map, list_t **suc_list, node_t *current_node);
@@ -114,7 +115,8 @@ int lpa_compute_path(int goalX, int goalY)
         calc_key(goal_key, goal_node, goal_node);
     }
     // print_map(map, goal_node->x, goal_node->y);
-    current_path = make_path(map, current_node, goal_node);
+    path.current_path = make_path(map, current_node, goal_node);
+    path.length = list_get_length(path.current_path);
     
     x_current = goal_node->x;
     y_current = goal_node->y;
@@ -132,13 +134,13 @@ void lpa_show_map(int x_goal, int y_goal)
     print_map(map, x_goal, y_goal);
 }
 
-list_t * lpa_get_path(void)
+path_t lpa_get_path(void)
 {
-    return current_path;
+    return path;
 }
 
 int lpa_get_path_length(void){
-    return list_get_length(current_path);
+    return path.length;
 }
 
 
@@ -226,21 +228,22 @@ static node_t *get_min_pred(node_t *map, node_t *from_node)
 
 static list_t * make_path(node_t *map, node_t *current_node, node_t *goal)
 {
+    list_t *path = NULL;
     node_t *node = get_min_pred(map, goal);
     node_t *prev_node = goal;
 
     if (node == current_node){ // We are in a one point to a finish
-        list_add(&current_path, prev_node);
+        list_add(&path, prev_node);
     } else {
         while (node != current_node)
         {
-            list_add(&current_path, node);
+            list_add(&path, node);
             node->isPath = true;
             prev_node = node;
             node = get_min_pred(map, prev_node);
         }
     }
-    return current_path;
+    return path;
 }
 
 //UTILS
