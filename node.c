@@ -3,10 +3,7 @@
 #include <math.h>
 
 int Node_isConsistent(node_t *node){
-    if (node->g == node->rhs) {
-        return 1;
-    }
-    return 0;
+    return node->g == node->rhs ? 1 : 0;
 }
 
 float Node_getHeuristic(node_t *current_node, node_t *goal_node){

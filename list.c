@@ -3,17 +3,17 @@
 
 void list_add(list_t **list, node_t *node)
 {
-    list_t *new_node = (list_t *)malloc(sizeof(list_t));
+    list_t *new_node = (list_t *)calloc(1, sizeof(list_t));
     new_node->nodes = node;
     new_node->next = *list;
     *list = new_node;
 }
 
-void list_delete(list_t **list){
-    if ((*list) != NULL){
-        list_t *temp = (*list);
-        *list = (*list)->next;
-        free(temp);
+void list_pop(list_t **list){
+    if (*list != NULL){
+        list_t *temp = (*list)->next;
+        free(*list);
+        *list = temp;
     }
 }
 

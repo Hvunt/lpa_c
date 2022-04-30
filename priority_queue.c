@@ -6,7 +6,7 @@
 void PQ_push(PQ_list_t **list, float *pr, node_t *data)
 {
 
-    PQ_list_t *new_node = (PQ_list_t *)malloc(sizeof(PQ_list_t));
+    PQ_list_t *new_node = (PQ_list_t *)calloc(1, sizeof(PQ_list_t));
     new_node->priority[0] = pr[0];
     new_node->priority[1] = pr[1];
     new_node->data = data;
